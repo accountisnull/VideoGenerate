@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "AudioFormat": {
+      "properties": {
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "codec": {
+          "minLength": 1,
+          "title": "Codec",
+          "type": "string"
+        },
+        "sample_rate_hz": {
+          "exclusiveMinimum": 0,
+          "title": "Sample Rate Hz",
+          "type": "integer"
+        },
+        "channels": {
+          "exclusiveMinimum": 0,
+          "title": "Channels",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "media_type",
+        "codec",
+        "sample_rate_hz",
+        "channels"
+      ],
+      "title": "AudioFormat",
+      "type": "object"
+    },
+    "SpeechInput": {
+      "properties": {
+        "max_text_chars": {
+          "exclusiveMinimum": 0,
+          "title": "Max Text Chars",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "max_text_chars"
+      ],
+      "title": "SpeechInput",
+      "type": "object"
+    },
+    "SpeechProfile": {
+      "properties": {
+        "profile_id": {
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "input_constraints": {
+          "$ref": "#/$defs/SpeechInput"
+        },
+        "output_constraints": {
+          "$ref": "#/$defs/AudioFormat"
+        }
+      },
+      "required": [
+        "profile_id",
+        "input_constraints",
+        "output_constraints"
+      ],
+      "title": "SpeechProfile",
+      "type": "object"
+    },
+    "Voice": {
+      "properties": {
+        "resource_id": {
+          "minLength": 1,
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "display_name": {
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "kind": {
+          "const": "voice",
+          "title": "Kind",
+          "type": "string"
+        },
+        "profile_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Profile Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource_id",
+        "display_name",
+        "kind",
+        "profile_ids"
+      ],
+      "title": "Voice",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "api_version": {
+      "const": "1.0",
+      "title": "Api Version",
+      "type": "string"
+    },
+    "service": {
+      "const": "speech",
+      "title": "Service",
+      "type": "string"
+    },
+    "profiles": {
+      "items": {
+        "$ref": "#/$defs/SpeechProfile"
+      },
+      "title": "Profiles",
+      "type": "array"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/Voice"
+      },
+      "title": "Resources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "api_version",
+    "service",
+    "profiles",
+    "resources"
+  ],
+  "title": "SpeechCapabilities",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

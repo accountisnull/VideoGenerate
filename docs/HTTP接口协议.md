@@ -4,6 +4,8 @@
 
 当前代码仅实现 `/api/health`、`/api/checks` 等环境自检接口。下列业务接口尚未实现，不能据此宣称生成或发布已接通。领域用语见 [CONTEXT.md](../CONTEXT.md)，职责依据见 [技术框架](技术框架.md)。
 
+公共 Pydantic 数据模型与可分发的 JSON Schema 已实现，使用方法和校验边界见 [公共数据契约](contracts/README.md)。模型尚未接入实际业务路由，幂等、文件校验和状态持久化由后续服务实现。
+
 ## 1. 调用关系与责任
 
 第 4 模块提供浏览器业务 API，独立 Worker 持久化流程进度并顺序调用前三个模块。前三个模块不互相调用，也不直接发布抖音。
@@ -148,7 +150,7 @@ queued → running → succeeded
 后者返回 `{service, api_version, profiles, resources}`：
 
 - `profiles` 为数组，每项包含 `profile_id`（稳定版本号）、`input_constraints` 和 `output_constraints`（对象）。内容服务可返回空数组。
-- 配音配置档至少声明 `max_text_chars`、`output_constraints.media_type`、`codec`、`sample_rate_hz`、`channels`。
+- 配音配置档至少声明 `input_constraints.max_text_chars`；`output_constraints` 包含 `media_type`、`codec`、`sample_rate_hz`、`channels`。
 - 数字人配置档至少声明 `input_constraints.audio_media_types`、`audio_codecs`、`sample_rates_hz`、`channels`（均为数组）、`max_audio_duration_ms`；输出声明 `media_type`、`codec`、`width`、`height`、`fps`、`has_audio`。
 - `resources` 为数组，每项包含 `resource_id`、`display_name`、`kind`（`voice / avatar`）和 `profile_ids`（可用配置档编号数组）。内容服务返回空数组。
 - 接口单位沿用公共约定，格式与参数限制必须可由调用方检查。配置档语义不可原地修改，改变格式或约束时分配新 `profile_id`。
@@ -348,7 +350,7 @@ queued → running → succeeded
 
 ## 9. 联调验收与落地顺序
 
-四人评审后先共同锁定 v1 字段，再各自实现；实现阶段补充 OpenAPI 文件或由公共数据模型生成，不手工维护互相矛盾的两套定义。
+四人评审后先共同锁定 v1 字段，再各自实现；当前 JSON Schema 从公共数据模型生成，业务路由实现时再生成 OpenAPI，不手工维护互相矛盾的两套定义。
 
 | 场景 | 验收条件 | 责任方 |
 | --- | --- | --- |

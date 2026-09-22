@@ -1,0 +1,74 @@
+{
+  "$defs": {
+    "RequestAssetRef": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "pattern": "^[^/\\\\:\\x00-\\x1f]+(/[^/\\\\:\\x00-\\x1f]+)*$",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes",
+        "media_type"
+      ],
+      "title": "RequestAssetRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "task_id": {
+      "format": "uuid",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "speech_job_id": {
+      "format": "uuid",
+      "title": "Speech Job Id",
+      "type": "string"
+    },
+    "avatar_resource_id": {
+      "minLength": 1,
+      "title": "Avatar Resource Id",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "audio": {
+      "$ref": "#/$defs/RequestAssetRef"
+    }
+  },
+  "required": [
+    "task_id",
+    "speech_job_id",
+    "avatar_resource_id",
+    "profile_id",
+    "audio"
+  ],
+  "title": "VideoRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

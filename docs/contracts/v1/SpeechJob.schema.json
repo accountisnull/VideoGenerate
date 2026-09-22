@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "AssetRef": {
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "pattern": "^[^/\\\\:\\x00-\\x1f]+(/[^/\\\\:\\x00-\\x1f]+)*$",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes",
+        "media_type"
+      ],
+      "title": "AssetRef",
+      "type": "object"
+    },
+    "Error": {
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "details"
+      ],
+      "title": "Error",
+      "type": "object"
+    },
+    "FailedJob": {
+      "properties": {
+        "job_id": {
+          "format": "uuid",
+          "title": "Job Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "state": {
+          "const": "failed",
+          "title": "State",
+          "type": "string"
+        },
+        "result": {
+          "title": "Result",
+          "type": "null"
+        },
+        "error": {
+          "$ref": "#/$defs/Error"
+        }
+      },
+      "required": [
+        "job_id",
+        "task_id",
+        "created_at",
+        "updated_at",
+        "state",
+        "result",
+        "error"
+      ],
+      "title": "FailedJob",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "PendingJob": {
+      "properties": {
+        "job_id": {
+          "format": "uuid",
+          "title": "Job Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "queued",
+            "running"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "result": {
+          "title": "Result",
+          "type": "null"
+        },
+        "error": {
+          "title": "Error",
+          "type": "null"
+        }
+      },
+      "required": [
+        "job_id",
+        "task_id",
+        "created_at",
+        "updated_at",
+        "state",
+        "result",
+        "error"
+      ],
+      "title": "PendingJob",
+      "type": "object"
+    },
+    "SpeechResult": {
+      "properties": {
+        "content_job_id": {
+          "format": "uuid",
+          "title": "Content Job Id",
+          "type": "string"
+        },
+        "audio": {
+          "$ref": "#/$defs/AssetRef"
+        },
+        "duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "codec": {
+          "minLength": 1,
+          "title": "Codec",
+          "type": "string"
+        },
+        "sample_rate_hz": {
+          "exclusiveMinimum": 0,
+          "title": "Sample Rate Hz",
+          "type": "integer"
+        },
+        "channels": {
+          "exclusiveMinimum": 0,
+          "title": "Channels",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "content_job_id",
+        "audio",
+        "duration_ms",
+        "codec",
+        "sample_rate_hz",
+        "channels"
+      ],
+      "title": "SpeechResult",
+      "type": "object"
+    },
+    "SucceededJob_SpeechResult_": {
+      "properties": {
+        "job_id": {
+          "format": "uuid",
+          "title": "Job Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "state": {
+          "const": "succeeded",
+          "title": "State",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/SpeechResult"
+        },
+        "error": {
+          "title": "Error",
+          "type": "null"
+        }
+      },
+      "required": [
+        "job_id",
+        "task_id",
+        "created_at",
+        "updated_at",
+        "state",
+        "result",
+        "error"
+      ],
+      "title": "SucceededJob[SpeechResult]",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "failed": "#/$defs/FailedJob",
+      "queued": "#/$defs/PendingJob",
+      "running": "#/$defs/PendingJob",
+      "succeeded": "#/$defs/SucceededJob_SpeechResult_"
+    },
+    "propertyName": "state"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/PendingJob"
+    },
+    {
+      "$ref": "#/$defs/SucceededJob_SpeechResult_"
+    },
+    {
+      "$ref": "#/$defs/FailedJob"
+    }
+  ],
+  "title": "SpeechJob",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

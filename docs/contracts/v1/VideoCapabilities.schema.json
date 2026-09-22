@@ -1,0 +1,200 @@
+{
+  "$defs": {
+    "Avatar": {
+      "properties": {
+        "resource_id": {
+          "minLength": 1,
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "display_name": {
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "kind": {
+          "const": "avatar",
+          "title": "Kind",
+          "type": "string"
+        },
+        "profile_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Profile Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource_id",
+        "display_name",
+        "kind",
+        "profile_ids"
+      ],
+      "title": "Avatar",
+      "type": "object"
+    },
+    "VideoFormat": {
+      "properties": {
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "codec": {
+          "minLength": 1,
+          "title": "Codec",
+          "type": "string"
+        },
+        "pixel_format": {
+          "minLength": 1,
+          "title": "Pixel Format",
+          "type": "string"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "fps": {
+          "pattern": "^[1-9][0-9]*/[1-9][0-9]*$",
+          "title": "Fps",
+          "type": "string"
+        },
+        "has_audio": {
+          "title": "Has Audio",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "media_type",
+        "codec",
+        "pixel_format",
+        "width",
+        "height",
+        "fps",
+        "has_audio"
+      ],
+      "title": "VideoFormat",
+      "type": "object"
+    },
+    "VideoInput": {
+      "properties": {
+        "audio_media_types": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Audio Media Types",
+          "type": "array"
+        },
+        "audio_codecs": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Audio Codecs",
+          "type": "array"
+        },
+        "sample_rates_hz": {
+          "items": {
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Sample Rates Hz",
+          "type": "array"
+        },
+        "channels": {
+          "items": {
+            "exclusiveMinimum": 0,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Channels",
+          "type": "array"
+        },
+        "max_audio_duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Max Audio Duration Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "audio_media_types",
+        "audio_codecs",
+        "sample_rates_hz",
+        "channels",
+        "max_audio_duration_ms"
+      ],
+      "title": "VideoInput",
+      "type": "object"
+    },
+    "VideoProfile": {
+      "properties": {
+        "profile_id": {
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "input_constraints": {
+          "$ref": "#/$defs/VideoInput"
+        },
+        "output_constraints": {
+          "$ref": "#/$defs/VideoFormat"
+        }
+      },
+      "required": [
+        "profile_id",
+        "input_constraints",
+        "output_constraints"
+      ],
+      "title": "VideoProfile",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "api_version": {
+      "const": "1.0",
+      "title": "Api Version",
+      "type": "string"
+    },
+    "service": {
+      "const": "video",
+      "title": "Service",
+      "type": "string"
+    },
+    "profiles": {
+      "items": {
+        "$ref": "#/$defs/VideoProfile"
+      },
+      "title": "Profiles",
+      "type": "array"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/Avatar"
+      },
+      "title": "Resources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "api_version",
+    "service",
+    "profiles",
+    "resources"
+  ],
+  "title": "VideoCapabilities",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

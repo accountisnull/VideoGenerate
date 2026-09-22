@@ -1,0 +1,241 @@
+{
+  "$defs": {
+    "ContentResult": {
+      "properties": {
+        "script": {
+          "minLength": 1,
+          "title": "Script",
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "review_passed": {
+          "const": true,
+          "title": "Review Passed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "script",
+        "title",
+        "tags",
+        "review_passed"
+      ],
+      "title": "ContentResult",
+      "type": "object"
+    },
+    "Error": {
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "details"
+      ],
+      "title": "Error",
+      "type": "object"
+    },
+    "FailedJob": {
+      "properties": {
+        "job_id": {
+          "format": "uuid",
+          "title": "Job Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "state": {
+          "const": "failed",
+          "title": "State",
+          "type": "string"
+        },
+        "result": {
+          "title": "Result",
+          "type": "null"
+        },
+        "error": {
+          "$ref": "#/$defs/Error"
+        }
+      },
+      "required": [
+        "job_id",
+        "task_id",
+        "created_at",
+        "updated_at",
+        "state",
+        "result",
+        "error"
+      ],
+      "title": "FailedJob",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "PendingJob": {
+      "properties": {
+        "job_id": {
+          "format": "uuid",
+          "title": "Job Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "queued",
+            "running"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "result": {
+          "title": "Result",
+          "type": "null"
+        },
+        "error": {
+          "title": "Error",
+          "type": "null"
+        }
+      },
+      "required": [
+        "job_id",
+        "task_id",
+        "created_at",
+        "updated_at",
+        "state",
+        "result",
+        "error"
+      ],
+      "title": "PendingJob",
+      "type": "object"
+    },
+    "SucceededJob_ContentResult_": {
+      "properties": {
+        "job_id": {
+          "format": "uuid",
+          "title": "Job Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        },
+        "state": {
+          "const": "succeeded",
+          "title": "State",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/ContentResult"
+        },
+        "error": {
+          "title": "Error",
+          "type": "null"
+        }
+      },
+      "required": [
+        "job_id",
+        "task_id",
+        "created_at",
+        "updated_at",
+        "state",
+        "result",
+        "error"
+      ],
+      "title": "SucceededJob[ContentResult]",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "failed": "#/$defs/FailedJob",
+      "queued": "#/$defs/PendingJob",
+      "running": "#/$defs/PendingJob",
+      "succeeded": "#/$defs/SucceededJob_ContentResult_"
+    },
+    "propertyName": "state"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/PendingJob"
+    },
+    {
+      "$ref": "#/$defs/SucceededJob_ContentResult_"
+    },
+    {
+      "$ref": "#/$defs/FailedJob"
+    }
+  ],
+  "title": "ContentJob",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,50 @@
+{
+  "$defs": {
+    "Revision": {
+      "additionalProperties": false,
+      "properties": {
+        "source_job_id": {
+          "format": "uuid",
+          "title": "Source Job Id",
+          "type": "string"
+        },
+        "instructions": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Instructions",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_job_id",
+        "instructions"
+      ],
+      "title": "Revision",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "task_id": {
+      "format": "uuid",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "topic": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Topic",
+      "type": "string"
+    },
+    "revision": {
+      "$ref": "#/$defs/Revision"
+    }
+  },
+  "required": [
+    "task_id",
+    "topic"
+  ],
+  "title": "ContentRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

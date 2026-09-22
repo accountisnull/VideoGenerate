@@ -1,0 +1,36 @@
+{
+  "properties": {
+    "script": {
+      "minLength": 1,
+      "title": "Script",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "tags": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "review_passed": {
+      "const": true,
+      "title": "Review Passed",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "script",
+    "title",
+    "tags",
+    "review_passed"
+  ],
+  "title": "ContentResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

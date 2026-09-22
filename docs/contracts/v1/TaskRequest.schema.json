@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "topic": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Topic",
+      "type": "string"
+    },
+    "avatar_id": {
+      "minLength": 1,
+      "title": "Avatar Id",
+      "type": "string"
+    },
+    "voice_id": {
+      "minLength": 1,
+      "title": "Voice Id",
+      "type": "string"
+    },
+    "publish_account_id": {
+      "minLength": 1,
+      "title": "Publish Account Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "topic",
+    "avatar_id",
+    "voice_id",
+    "publish_account_id"
+  ],
+  "title": "TaskRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
