@@ -1,0 +1,31 @@
+{
+  "properties": {
+    "service": {
+      "enum": [
+        "content",
+        "speech",
+        "video"
+      ],
+      "title": "Service",
+      "type": "string"
+    },
+    "api_version": {
+      "const": "1.0",
+      "title": "Api Version",
+      "type": "string"
+    },
+    "ready": {
+      "const": true,
+      "title": "Ready",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "service",
+    "api_version",
+    "ready"
+  ],
+  "title": "HealthResponse",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

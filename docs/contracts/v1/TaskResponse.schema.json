@@ -1,0 +1,307 @@
+{
+  "$defs": {
+    "AssetRef": {
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "pattern": "^[^/\\\\:\\x00-\\x1f]+(/[^/\\\\:\\x00-\\x1f]+)*$",
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        },
+        "media_type": {
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes",
+        "media_type"
+      ],
+      "title": "AssetRef",
+      "type": "object"
+    },
+    "Error": {
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "details": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryable",
+        "details"
+      ],
+      "title": "Error",
+      "type": "object"
+    },
+    "FinalVideo": {
+      "properties": {
+        "asset": {
+          "$ref": "#/$defs/AssetRef"
+        },
+        "duration_ms": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "fps": {
+          "pattern": "^[1-9][0-9]*/[1-9][0-9]*$",
+          "title": "Fps",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset",
+        "duration_ms",
+        "width",
+        "height",
+        "fps"
+      ],
+      "title": "FinalVideo",
+      "type": "object"
+    },
+    "JobReferences": {
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Content"
+        },
+        "speech": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Speech"
+        },
+        "video": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Video"
+        }
+      },
+      "required": [
+        "content",
+        "speech",
+        "video"
+      ],
+      "title": "JobReferences",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "Publication": {
+      "properties": {
+        "state": {
+          "enum": [
+            "not_started",
+            "submitted",
+            "processing",
+            "published",
+            "failed",
+            "unknown"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "platform": {
+          "const": "douyin",
+          "title": "Platform",
+          "type": "string"
+        },
+        "account_id": {
+          "minLength": 1,
+          "title": "Account Id",
+          "type": "string"
+        },
+        "submission_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Submission Id"
+        },
+        "platform_video_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Platform Video Id"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Published At"
+        }
+      },
+      "required": [
+        "state",
+        "platform",
+        "account_id",
+        "submission_id",
+        "platform_video_id",
+        "published_at"
+      ],
+      "title": "Publication",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "task_id": {
+      "format": "uuid",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "queued",
+        "running",
+        "waiting_external",
+        "succeeded",
+        "failed"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "content",
+        "speech",
+        "video",
+        "integration",
+        "publication",
+        "completed"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "jobs": {
+      "$ref": "#/$defs/JobReferences"
+    },
+    "final_video": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FinalVideo"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "publication": {
+      "$ref": "#/$defs/Publication"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Error"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "task_id",
+    "state",
+    "stage",
+    "created_at",
+    "updated_at",
+    "jobs",
+    "final_video",
+    "publication",
+    "error"
+  ],
+  "title": "TaskResponse",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

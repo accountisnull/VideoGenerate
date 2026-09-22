@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "description": "由 HTTP 层按大小写无关的名称提取这两个请求头后校验。",
+  "properties": {
+    "Idempotency-Key": {
+      "format": "uuid",
+      "title": "Idempotency-Key",
+      "type": "string"
+    },
+    "X-Request-ID": {
+      "format": "uuid",
+      "title": "X-Request-Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "Idempotency-Key"
+  ],
+  "title": "CreateHeaders",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

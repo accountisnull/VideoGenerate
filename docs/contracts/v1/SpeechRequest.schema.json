@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "task_id": {
+      "format": "uuid",
+      "title": "Task Id",
+      "type": "string"
+    },
+    "content_job_id": {
+      "format": "uuid",
+      "title": "Content Job Id",
+      "type": "string"
+    },
+    "text": {
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    },
+    "voice_id": {
+      "minLength": 1,
+      "title": "Voice Id",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "content_job_id",
+    "text",
+    "voice_id",
+    "profile_id"
+  ],
+  "title": "SpeechRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
