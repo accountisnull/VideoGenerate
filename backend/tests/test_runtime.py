@@ -45,26 +45,44 @@ def test_api_reports_not_ready_and_rejects_offline_worker(isolated_runtime):
 
 
 def test_media_paths_resolve_from_project_not_working_directory(tmp_path, monkeypatch):
-    import json
-
-    (tmp_path / "config").mkdir()
-    (tmp_path / "config/runtime.local.json").write_text(json.dumps({
-        "ffmpeg": "tools/media/ffmpeg.exe", "ffprobe": "ffprobe",
-    }), encoding="utf-8-sig")
+    (tmp_path / ".env").write_text(
+        "FFMPEG_PATH='tools/media files/ffmpeg.exe'\nFFPROBE_PATH=ffprobe\n",
+        encoding="utf-8-sig",
+    )
     monkeypatch.setattr(runtime, "ROOT", tmp_path)
+    monkeypatch.chdir(tmp_path.parent)
+    monkeypatch.delenv("FFMPEG_PATH", raising=False)
+    monkeypatch.delenv("FFPROBE_PATH", raising=False)
     monkeypatch.setattr(runtime.shutil, "which", lambda value: value)
     assert runtime.media_tools() == {
-        "ffmpeg": str(tmp_path / "tools/media/ffmpeg.exe"), "ffprobe": "ffprobe",
+        "ffmpeg": str(tmp_path / "tools/media files/ffmpeg.exe"), "ffprobe": "ffprobe",
     }
 
 
-def test_invalid_media_config_reports_clear_error(tmp_path, monkeypatch):
-    (tmp_path / "config").mkdir()
-    config = tmp_path / "config/runtime.local.json"
+@pytest.mark.parametrize("value", ["FFMPEG_PATH=", "FFMPEG_PATH", "FFMPEG_PATH='  '"])
+def test_invalid_media_config_reports_clear_error(tmp_path, monkeypatch, value):
     monkeypatch.setattr(runtime, "ROOT", tmp_path)
-    config.write_text('[]')
-    with pytest.raises(TypeError, match="JSON object"):
+    monkeypatch.delenv("FFMPEG_PATH", raising=False)
+    (tmp_path / ".env").write_text(value, encoding="utf-8")
+    with pytest.raises(ValueError, match="FFMPEG_PATH must be a non-empty"):
         runtime.media_tools()
-    config.write_text('{"ffmpeg": null}')
-    with pytest.raises(ValueError, match="non-empty"):
-        runtime.media_tools()
+
+
+def test_configuration_defaults_and_environment_overrides(tmp_path, monkeypatch):
+    monkeypatch.setattr(runtime, "ROOT", tmp_path)
+    for name in ("FFMPEG_PATH", "FFPROBE_PATH", "VIDEO_DATA_DIR"):
+        monkeypatch.delenv(name, raising=False)
+    assert runtime.configuration() == {
+        "FFMPEG_PATH": "ffmpeg", "FFPROBE_PATH": "ffprobe", "VIDEO_DATA_DIR": "data",
+    }
+    (tmp_path / ".env").write_text(
+        "FFMPEG_PATH=file-ffmpeg\nFFPROBE_PATH=file-ffprobe\nVIDEO_DATA_DIR=custom-data\n",
+        encoding="utf-8",
+    )
+    assert runtime.configuration()["VIDEO_DATA_DIR"] == "custom-data"
+    monkeypatch.setenv("FFMPEG_PATH", "environment-ffmpeg")
+    monkeypatch.setenv("VIDEO_DATA_DIR", "environment-data")
+    assert runtime.configuration() == {
+        "FFMPEG_PATH": "environment-ffmpeg", "FFPROBE_PATH": "file-ffprobe",
+        "VIDEO_DATA_DIR": "environment-data",
+    }

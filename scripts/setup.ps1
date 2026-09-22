@@ -42,14 +42,6 @@ if ($FfmpegDirectory) {
         if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) { throw "Missing $executable" }
         $settings[$name] = $executable
     }
-    $configPath = Join-Path $projectRoot 'config\runtime.local.json'
-    if (Test-Path -LiteralPath $configPath) {
-        $config = Get-Content -Raw -Encoding UTF8 -LiteralPath $configPath | ConvertFrom-Json
-    } else { $config = [pscustomobject]@{} }
-    foreach ($name in @('ffmpeg', 'ffprobe')) {
-        $config | Add-Member -NotePropertyName $name -NotePropertyValue $settings[$name] -Force
-    }
-    $config | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 -LiteralPath $configPath
 }
 Push-Location -LiteralPath $projectRoot
 try {
@@ -57,6 +49,19 @@ try {
     if ($WithContent) { $syncArgs += @('--extra', 'content') }
     & uv @syncArgs
     if ($LASTEXITCODE -ne 0) { throw 'Python dependency installation failed. Resolve the error above and rerun setup.' }
+    $configPath = Join-Path $projectRoot '.env'
+    if (-not (Test-Path -LiteralPath $configPath)) {
+        Copy-Item -LiteralPath (Join-Path $projectRoot '.env.example') -Destination $configPath
+    }
+    if ($FfmpegDirectory) {
+        @'
+import sys
+from dotenv import set_key
+for name, value in zip(('FFMPEG_PATH', 'FFPROBE_PATH'), sys.argv[2:]):
+    set_key(sys.argv[1], name, value.replace('\\', '/'), encoding='utf-8-sig')
+'@ | & (Join-Path $projectRoot 'backend\.venv\Scripts\python.exe') - $configPath $settings['ffmpeg'] $settings['ffprobe']
+        if ($LASTEXITCODE -ne 0) { throw 'Unable to update .env media paths.' }
+    }
     & npm.cmd --prefix frontend ci --include=dev --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw 'Frontend dependency installation failed. Resolve the error above and rerun setup.' }
     & npm.cmd --prefix frontend run build

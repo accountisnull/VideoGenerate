@@ -39,7 +39,7 @@ Set-Location VideoGenerate
 
 私有仓库需要访问权限。也可解压包含当前变更的源码压缩包并进入根目录。源码必须包含 `scripts/setup.ps1`、`scripts/verify.ps1`、`backend/uv.lock` 和 `frontend/package-lock.json`；若缺失，说明版本较旧，应先由维护者提交并推送当前版本。
 
-不要从旧电脑复制 `.venv`、`node_modules`、`frontend/dist`、运行数据库或 `config/runtime.local.json`。它们需在本机重新建立，旧电脑的 FFmpeg 路径不能直接复用。
+不要从旧电脑复制 `.venv`、`node_modules`、`frontend/dist`、运行数据库或 `.env`。它们需在本机重新建立，旧电脑的 FFmpeg 路径不能直接复用。
 
 ## 3. 安装、构建并检查
 
@@ -61,16 +61,33 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/setup.ps1 -WithC
 
 重新安装前先停止项目服务。脚本不升级锁文件，`npm ci` 会重建项目的 `node_modules`。保留可选内容组需在重新安装时继续传 `-WithContent`。
 
-也可复制 `config/runtime.example.json` 为 `config/runtime.local.json` 并填写：
+安装脚本会在项目根目录缺少 `.env` 时从 `.env.example` 创建它。也可手动复制并填写：
 
-```json
-{
-  "ffmpeg": "C:/Tools/ffmpeg/bin/ffmpeg.exe",
-  "ffprobe": "C:/Tools/ffmpeg/bin/ffprobe.exe"
-}
+```dotenv
+FFMPEG_PATH='C:/Tools/ffmpeg/bin/ffmpeg.exe'
+FFPROBE_PATH='C:/Tools/ffmpeg/bin/ffprobe.exe'
+VIDEO_DATA_DIR=data
 ```
 
-路径支持绝对路径、相对**项目根目录**的路径或 PATH 中的程序名。JSON 中推荐 `/`；使用反斜杠时需写成 `\\`。本机配置不提交 Git。
+媒体工具路径支持绝对路径、相对**项目根目录**的路径或 PATH 中的程序名。Windows 路径推荐 `/`，含空格时加单引号。配置优先级为系统环境变量 > 根目录 `.env` > 默认值（`ffmpeg`、`ffprobe`、`data`）。本机 `.env` 不提交 Git，修改后重启服务。
+
+`VIDEO_DATA_DIR` 控制数据库和媒体产物目录，支持绝对路径或相对项目根目录的路径；启停脚本的日志与进程记录仍放在根目录 `data/`。旧版 `config/runtime.local.json` 不再读取，其中 `ffmpeg`、`ffprobe` 分别迁移为 `FFMPEG_PATH`、`FFPROBE_PATH`。
+
+### 文本模型配置
+
+根目录 `.env` 已预留写稿、检查和改稿三组配置：
+
+| 步骤 | 变量前缀 |
+| --- | --- |
+| 写稿 | `TEXT_WRITING_` |
+| 检查 | `TEXT_REVIEW_` |
+| 改稿 | `TEXT_REVISION_` |
+
+每组都需要填写 `BASE_URL`（对应地域的百炼兼容接口地址）和 `MODEL`（实际模型 ID）。`API_KEY_ENV` 是保存密钥的变量名，默认三组均引用同一份 `DASHSCOPE_API_KEY`；将真实密钥填入 `.env` 的 `DASHSCOPE_API_KEY=` 后即可。各组可以使用相同或不同的模型与接口，也可把 `API_KEY_ENV` 改为另一个在 `.env` 或系统环境中定义的密钥变量名。
+
+`TIMEOUT_SECONDS` 默认为 `60`；`GENERATION_OPTIONS` 是单引号包裹的 JSON 对象，默认 `'{}'`。例如模型支持时可填写 `TEXT_WRITING_GENERATION_OPTIONS='{"temperature": 0.7}'`。系统环境变量优先于 `.env`，不要把真实密钥填入 `.env.example`。
+
+目前已实现配置读取和基本校验，内容生成调用仍待接入。模型 ID、地址和密钥留空不影响现有媒体自检；调用模型配置读取函数时会提示缺少的变量名。配音和数字人模型由独立服务负责选型，尚未配置。
 
 ## 4. 启动并验证
 
@@ -106,7 +123,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1 -Port
 | 下载失败 | 检查 PyPI、npm、GitHub 网络／代理，保留锁文件并重跑 |
 | 找不到 FFmpeg／ffprobe | `-FfmpegDirectory` 指向同时含两者的目录，更新旧电脑的配置路径 |
 | 缺少 DLL、编码器或合成失败 | 使用完整 FFmpeg 发行包，查看安装脚本实际媒体验证的错误输出 |
-| JSON 解析失败 | 修正引号、逗号和路径转义，参考模板重建本机配置 |
+| 配置为空或路径无效 | 按 `.env.example` 检查变量名、引号与路径，工具路径不能留空 |
 | 受管进程仍在运行 | 先运行 stop.ps1，再安装或启动 |
 | 启动失败或 Worker 离线 | 查看 `data/logs/api.err.log`、`worker.err.log`，修复后先 stop 再 start |
 | 端口不可用 | 通过 `-Port` 更换，不停止其他项目的程序 |

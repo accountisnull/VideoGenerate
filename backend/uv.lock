@@ -1046,6 +1046,7 @@ dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
+    { name = "python-dotenv" },
     { name = "python-multipart" },
     { name = "uvicorn" },
 ]
@@ -1070,6 +1071,7 @@ requires-dist = [
     { name = "langchain-openai", marker = "extra == 'content'", specifier = "==1.6.2" },
     { name = "pydantic", specifier = "==2.13.5" },
     { name = "pydantic-settings", specifier = "==2.15.0" },
+    { name = "python-dotenv", specifier = "==1.2.3" },
     { name = "python-multipart", specifier = "==0.0.32" },
     { name = "uvicorn", specifier = "==0.53.0" },
 ]

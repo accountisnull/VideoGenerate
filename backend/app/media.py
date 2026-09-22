@@ -16,7 +16,7 @@ def run(command):
 def self_check(folder: Path, tools: dict):
     """Generate synthetic test media only; no models or publishing calls."""
     if not tools.get("ffmpeg") or not tools.get("ffprobe"):
-        raise RuntimeError("未找到 FFmpeg 或 ffprobe，请配置 config/runtime.local.json")
+        raise RuntimeError("未找到 FFmpeg 或 ffprobe，请配置项目根目录 .env 中的 FFMPEG_PATH 和 FFPROBE_PATH")
     folder.mkdir(parents=True, exist_ok=True)
     ffmpeg = [tools["ffmpeg"], "-hide_banner", "-loglevel", "error", "-y"]
     run(ffmpeg + [
