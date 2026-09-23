@@ -1,0 +1,240 @@
+{
+  "$defs": {
+    "CapabilityFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "minLength": 1,
+          "title": "Capability",
+          "type": "string"
+        },
+        "code": {
+          "enum": [
+            "UPSTREAM_FAILED",
+            "CALL_TIMEOUT",
+            "INVALID_OUTPUT",
+            "INTERNAL_ERROR"
+          ],
+          "title": "Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capability",
+        "code"
+      ],
+      "title": "CapabilityFailure",
+      "type": "object"
+    },
+    "Material": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Url"
+        },
+        "snippet": {
+          "default": "",
+          "title": "Snippet",
+          "type": "string"
+        },
+        "platform": {
+          "anyOf": [
+            {
+              "enum": [
+                "weibo",
+                "baidu",
+                "douyin"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform"
+        },
+        "hot_score": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hot Score"
+        },
+        "fetched_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fetched At"
+        }
+      },
+      "required": [
+        "title",
+        "source",
+        "url"
+      ],
+      "title": "Material",
+      "type": "object"
+    },
+    "RetrievalSourceStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "platform": {
+          "enum": [
+            "weibo",
+            "baidu",
+            "douyin"
+          ],
+          "title": "Platform",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "empty",
+            "degraded",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason Code"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error"
+        },
+        "item_count": {
+          "minimum": 0,
+          "title": "Item Count",
+          "type": "integer"
+        },
+        "invalid_count": {
+          "minimum": 0,
+          "title": "Invalid Count",
+          "type": "integer"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Id"
+        },
+        "source_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Version"
+        }
+      },
+      "required": [
+        "platform",
+        "status",
+        "reason_code",
+        "error",
+        "item_count",
+        "invalid_count",
+        "fetched_at",
+        "source_id",
+        "source_version"
+      ],
+      "title": "RetrievalSourceStatus",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "materials": {
+      "items": {
+        "$ref": "#/$defs/Material"
+      },
+      "title": "Materials",
+      "type": "array"
+    },
+    "failures": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CapabilityFailure"
+      },
+      "title": "Failures",
+      "type": "array"
+    },
+    "source_statuses": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/RetrievalSourceStatus"
+      },
+      "title": "Source Statuses",
+      "type": "array"
+    }
+  },
+  "required": [
+    "materials"
+  ],
+  "title": "RetrievalResult",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
