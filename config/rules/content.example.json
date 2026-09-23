@@ -1,0 +1,11 @@
+{
+  "version": "example-review-required-v1",
+  "min_script_chars": 100,
+  "max_script_chars": 200,
+  "audit_instructions": "此为联调用规则示例，使用前由规则负责人核对。内容围绕人工主题，避免无法支持的效果承诺、绝对化广告表达及联系方式导流，保持逻辑清楚、适合朗读。",
+  "keywords": [
+    {"rule_id": "promise-001", "word": "保证涨薪", "fields": ["script", "title", "tags"]},
+    {"rule_id": "promise-002", "word": "包过", "fields": ["script", "title", "tags"]},
+    {"rule_id": "contact-001", "word": "加我微信", "fields": ["script", "title", "tags"]}
+  ]
+}

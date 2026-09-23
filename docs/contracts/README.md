@@ -1,6 +1,6 @@
 # HTTP v1 公共数据契约
 
-接口语义以 [HTTP 接口协议](../HTTP接口协议.md) 为准，模型源代码位于 `backend/app/contracts/`。本目录 `v1/*.schema.json` 从模型生成，禁止手工修改。接口服务、数据库和 Worker 尚未接入这些模型。
+接口语义以 [HTTP 接口协议](../HTTP接口协议.md) 为准，模型源代码位于 `backend/app/contracts/`。本目录 `v1/*.schema.json` 从模型生成，禁止手工修改。独立内容服务已复用公共模型进行受理、持久化与查询，模型适配需按配置启用，见 [内容服务](../content-service.md)。
 
 ## 各模块如何使用
 

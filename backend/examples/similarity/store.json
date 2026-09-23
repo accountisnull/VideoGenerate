@@ -1,0 +1,16 @@
+{
+  "script": "绿萝喜欢明亮的散射光，不要暴晒，盆土表层干燥后再浇水。",
+  "job_id": "11111111-1111-4111-8111-111111111111",
+  "content_version_id": "22222222-2222-4222-8222-222222222222",
+  "approval": {
+    "approval_id": "55555555-5555-4555-8555-555555555555",
+    "job_id": "11111111-1111-4111-8111-111111111111",
+    "content_version_id": "22222222-2222-4222-8222-222222222222",
+    "script_sha256": "fedbf2cabc45e23c96b1ed0a2104a866b98e3bbe26509268e4c76cc52f6d45fd",
+    "checks": {
+      "keywords": true,
+      "content_audit": true,
+      "similarity": true
+    }
+  }
+}
