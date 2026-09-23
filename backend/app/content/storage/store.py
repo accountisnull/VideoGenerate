@@ -3,15 +3,17 @@
 import json
 import sqlite3
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
 from app.contracts import ContentJob, ContentRequest, Error
 
+from ..json_data import strict_json
 from ..models import RunOutcome
-from .migrations import APPLICATION_ID, STATEMENTS, VERSION
+from .migrations import APPLICATION_ID, MIGRATIONS, VERSION
+from .records import CallRecord, StoredContent
 
 
 class StoreError(Exception):
@@ -28,6 +30,11 @@ def canonical_request(request: ContentRequest) -> str:
 
 def timestamp() -> str:
     return datetime.now(UTC).isoformat()
+
+
+def validate_call_json(value: str) -> None:
+    if not isinstance(strict_json(value), dict):
+        raise TypeError("调用记录必须为 JSON 对象")
 
 
 class ContentStore:
@@ -58,12 +65,13 @@ class ContentStore:
                     "SELECT 1 FROM sqlite_master WHERE type='table'"
                 ).fetchone():
                     raise StoreError("STORAGE_SCHEMA_INVALID")
-                for statement in STATEMENTS:
-                    db.execute(statement)
                 db.execute(f"PRAGMA application_id={APPLICATION_ID}")
-                db.execute(f"PRAGMA user_version={VERSION}")
-            elif application_id != APPLICATION_ID or version != VERSION:
+            elif application_id != APPLICATION_ID or not 1 <= version <= VERSION:
                 raise StoreError("STORAGE_SCHEMA_INVALID")
+            for target in range(version + 1, VERSION + 1):
+                for statement in MIGRATIONS[target]:
+                    db.execute(statement)
+                db.execute(f"PRAGMA user_version={target}")
             # 即使版本号正确，也不能在缺表数据库中启动服务。
             db.execute(
                 "SELECT job_id, caller_id, request_json, response_json, outcome_json FROM content_jobs LIMIT 0"
@@ -71,6 +79,45 @@ class ContentStore:
             db.execute(
                 "SELECT call_id, input_json, output_json FROM content_calls LIMIT 0"
             )
+
+    def inspect(self, job_id: UUID, caller_id: str) -> StoredContent:
+        """在一个事务快照内查询；仅供内容模块可信调用方使用。"""
+        with self._transaction() as db:
+            row = db.execute(
+                "SELECT * FROM content_jobs WHERE job_id=? AND caller_id=?",
+                (str(job_id), caller_id),
+            ).fetchone()
+            if row is None:
+                raise StoreError("JOB_NOT_FOUND")
+            calls = db.execute(
+                "SELECT * FROM content_calls WHERE job_id=? ORDER BY started_at,rowid",
+                (str(job_id),),
+            ).fetchall()
+            return StoredContent(
+                job=ContentJob.model_validate_json(row["response_json"]),
+                request=ContentRequest.model_validate_json(row["request_json"]),
+                outcome=RunOutcome.model_validate_json(row["outcome_json"])
+                if row["outcome_json"] is not None else None,
+                calls=tuple(CallRecord.model_validate(dict(call)) for call in calls),
+            )
+
+    def backup(self, destination: Path) -> None:
+        """SQLite 一致性备份；不覆盖已有备份或源库，失败删除本次空壳。"""
+        destination = Path(destination).resolve()
+        if destination == self.path.resolve():
+            raise ValueError("备份路径不能等于源数据库")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with destination.open("xb"):
+            pass
+        try:
+            with (
+                closing(sqlite3.connect(self.path.resolve().as_uri() + "?mode=ro", uri=True)) as source,
+                closing(sqlite3.connect(destination)) as target,
+            ):
+                source.backup(target)
+        except BaseException:
+            destination.unlink(missing_ok=True)
+            raise
 
     def get(self, job_id: UUID, caller_id: str) -> ContentJob:
         with self._transaction() as db:
@@ -265,6 +312,9 @@ class ContentStore:
     def begin_call(
         self, job_id: UUID, stage: str, capability: str, input_json: str
     ) -> UUID:
+        validate_call_json(input_json)
+        if not stage.strip() or not capability.strip():
+            raise ValueError("调用阶段和能力名称不能为空")
         call_id = uuid4()
         with self._transaction() as db:
             row = db.execute(
@@ -279,6 +329,7 @@ class ContentStore:
         return call_id
 
     def finish_call(self, call_id: UUID, output_json: str) -> None:
+        validate_call_json(output_json)
         with self._transaction() as db:
             changed = db.execute(
                 "UPDATE content_calls SET output_json=?,finished_at=? WHERE call_id=? AND finished_at IS NULL",

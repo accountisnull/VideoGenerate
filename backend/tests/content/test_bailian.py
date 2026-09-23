@@ -4,7 +4,7 @@ import asyncio
 import json
 import time
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import httpx
 import pytest
@@ -30,6 +30,7 @@ from app.content.providers.bailian import (
 )
 from app.content.review.keywords import KeywordReviewer, load_rules
 from app.content.settings import ContentSettings
+from app.content.storage import ContentStore
 
 
 def model_settings(**kwargs):
@@ -153,6 +154,14 @@ def test_http_job_uses_real_adapters_and_revises_once(configured, engine):
         assert body["result"]["script"] == good_script
     assert [c["model"] for c in calls] == ["writing", "review", "revision", "review"]
     assert review_count == 2
+    # 元数据须经过主管的基础模型校验并持久化，不能在适配边界丢失。
+    record = ContentStore(settings.database).inspect(UUID(body["job_id"]), "local-worker")
+    assert all(
+        review.decision.audit.model_version == "review"
+        for round_record in record.outcome.rounds
+        for review in round_record.reviews
+        if review.capability == "content"
+    )
 
 
 def test_member_extensions_receive_materials_and_fail_closed(configured):

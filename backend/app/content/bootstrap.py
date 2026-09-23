@@ -12,9 +12,9 @@ from .providers.bailian import (
     BailianTextClient,
     TextGenerator,
     TextModelSettings,
-    TextReviewer,
 )
 from .retrieval.agent import create_trending_agent
+from .review.audit import AuditReviewer
 from .review.keywords import KeywordReviewer, load_rules
 from .settings import ContentSettings
 
@@ -81,7 +81,9 @@ def build_orchestrator(
             completions["writing"], completions["revision"], rules.prompt()
         ),
         keywords=KeywordReviewer(rules),
-        content_review=TextReviewer(completions["review"], rules.prompt()),
+        content_review=AuditReviewer(
+            completions["review"], rules, model_version=clients["review"].settings.model
+        ),
         retrievers=active_retrievers,
         additional_reviews=additional_reviews,
         call_timeout_seconds=max(
