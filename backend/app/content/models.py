@@ -1,5 +1,6 @@
 """内容成员间传递的不可变输入、审核结果与运行记录。"""
 
+from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -51,6 +52,22 @@ class Material(InternalModel):
     source: Text
     url: Text | None
     snippet: str = ""
+    # 可选热点元数据；旧搜索实现与持久化记录仍可读取。
+    platform: Literal["weibo", "baidu", "douyin"] | None = None
+    hot_score: Annotated[float, Field(ge=0, allow_inf_nan=False)] | None = None
+    fetched_at: datetime | None = None
+
+
+class RetrievalSourceStatus(InternalModel):
+    platform: Literal["weibo", "baidu", "douyin"]
+    status: Literal["ok", "empty", "degraded", "failed"]
+    reason_code: str | None
+    error: str | None
+    item_count: Annotated[int, Field(ge=0)]
+    invalid_count: Annotated[int, Field(ge=0)]
+    fetched_at: datetime
+    source_id: str | None
+    source_version: str | None
 
 
 FailureCode = Literal[
@@ -66,6 +83,7 @@ class CapabilityFailure(InternalModel):
 class RetrievalResult(InternalModel):
     materials: tuple[Material, ...]
     failures: tuple[CapabilityFailure, ...] = ()
+    source_statuses: tuple[RetrievalSourceStatus, ...] = ()
 
 
 class RetrievalRecord(InternalModel):

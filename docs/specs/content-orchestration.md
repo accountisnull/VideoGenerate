@@ -39,6 +39,8 @@ HTTP ContentRequest 只接收 task_id、topic 与可省略的 revision；不新�
 
 素材来源保存在 GenerationInput.materials 与 RunOutcome.retrievals（title/source/url/snippet）。它们表示提供给模型的参考素材，不证明稿件实际引用了其中某项。无素材时为空；逐句引用或实际使用素材 ID 尚未实现，不伪报已交付，后续先确认内部结构再增加能力。
 
+热点增强在 Material 中增加可选 platform/hot_score/fetched_at，source_url 映射为现有 url；RetrievalResult 增加默认空的 source_statuses，保留各平台状态和具体原因。旧记录仍可读取，内部响应消费方需先升级以接收这些新字段；公共 HTTP v1 不变。热点接入、生成 Schema 与 MCP 注册见 [热点检索](../trending-retrieval.md)。
+
 只有主管在所有已启用检查通过后构造 ContentResult(script,title,tags,review_passed=true)。审核 JSON 无效属于 INVALID_OUTPUT，导致 REVIEW_FAILED，不能回退为 passed=true，也不触发修订。有效业务拒绝才允许一次修订。
 
 关键词和内容审核在构造时必填，额外审核使用命名映射注册；名字不能覆盖 keywords/content。同质化检测通过 SimilarityAgent 接入，命中原因写入 issues。启用同质化时，执行器在全部审核通过后持久化写入意图，再调用向量保存；成功读回确认后才将作业标为成功，重启只核对原意图。配置与恢复语义见 [同质化服务](../similarity-service.md)。Python 接口不限制后续适配层使用 deepagents 或 MCP。

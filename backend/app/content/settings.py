@@ -4,9 +4,11 @@ import re
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, SecretStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
 from app.runtime import ROOT, environment_values
+
+from .retrieval.config import TrendingSettings
 
 
 class ContentSettings(BaseModel):
@@ -20,6 +22,7 @@ class ContentSettings(BaseModel):
     similarity_enabled: bool = False
     similarity_python: Path | None = None
     similarity_timeout_seconds: float = 150
+    trending: TrendingSettings = Field(default_factory=TrendingSettings)
 
     @field_validator("similarity_timeout_seconds")
     @classmethod
@@ -58,6 +61,7 @@ def load_settings() -> ContentSettings:
         asset_root=path("CONTENT_ASSET_ROOT", "data/assets"),
         token=token or None,
         provider=values.get("CONTENT_PROVIDER", "disabled"),
+        trending=TrendingSettings.from_values(values),
         engine=values.get("CONTENT_ENGINE", "http"),
         similarity_enabled=enabled == "true",
         similarity_python=path("CONTENT_SIMILARITY_PYTHON", "backend/.venv/Scripts/python.exe"),

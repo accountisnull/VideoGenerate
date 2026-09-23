@@ -58,6 +58,8 @@ app = create_app(settings, orchestrator)
 
 各成员交付时提供：实例工厂、所属 Skill 文件、依赖与配置模板、输入输出样例、异常/超时/取消测试和启动停止方法。注册由启动组装代码完成，不接受 HTTP 请求中的模块路径、任意命令或任意工具名。
 
+热点成员已有 `create_trending_agent()` 与 `Retriever` 适配，内容服务通过 `CONTENT_TRENDING_ENABLED` 显式启用。`trending_fetch` 及三个分平台工具可通过 `register_trending_tools(server)` 挂载到人员 2 的 search-mcp，使用下述 v1 context/call_id/schema_version 结构；当前内容服务使用 Python 直连，Streamable HTTP 服务生命周期和远端客户端尚待汇总。完整规则和兼容说明见 [热点检索](../trending-retrieval.md)。
+
 ## 四个 MCP 服务基线
 
 ### vector-mcp 已交付版本兼容
