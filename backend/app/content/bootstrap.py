@@ -13,6 +13,7 @@ from .providers.bailian import (
     TextGenerator,
     TextModelSettings,
 )
+from .retrieval.agent import create_trending_agent
 from .review.audit import AuditReviewer
 from .review.keywords import KeywordReviewer, load_rules
 from .settings import ContentSettings
@@ -72,6 +73,9 @@ def build_orchestrator(
             }
         except (ImportError, ValueError, OSError):
             raise ContentConfigurationError() from None
+    active_retrievers = dict(retrievers or {})
+    if settings.trending.enabled and "trending" not in active_retrievers:
+        active_retrievers["trending"] = create_trending_agent(settings.trending)
     return ContentOrchestrator(
         generator=TextGenerator(
             completions["writing"], completions["revision"], rules.prompt()
@@ -80,7 +84,7 @@ def build_orchestrator(
         content_review=AuditReviewer(
             completions["review"], rules, model_version=clients["review"].settings.model
         ),
-        retrievers=retrievers,
+        retrievers=active_retrievers,
         additional_reviews=additional_reviews,
         call_timeout_seconds=max(
             client.settings.timeout_seconds for client in clients.values()
