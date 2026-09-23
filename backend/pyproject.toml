@@ -18,10 +18,21 @@ content = [
     "deepagents==0.7.16",
     "langchain-openai==1.6.2",
 ]
+similarity-probe = [
+    "qdrant-client>=1.14,<2",
+    "sentence-transformers>=3,<6",
+]
+similarity = [
+    "mcp>=1.20,<2",
+    "qdrant-client==1.19.1",
+    "sentence-transformers==5.7.0",
+]
 
 [dependency-groups]
 dev = [
+    "mcp>=1.20,<2",
     "pytest==9.1.1",
+    "qdrant-client==1.19.1",
     "ruff==0.16.8",
 ]
 
