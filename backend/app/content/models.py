@@ -77,11 +77,23 @@ class Issue(InternalModel):
     field: Literal["script", "title", "tags", "content"]
     code: Text
     message: Text
+    suggestion: Text | None = Field(default=None, exclude_if=lambda value: value is None)
+
+
+class AuditMetadata(InternalModel):
+    """由程序记录版本与耗时，不接受模型自报。"""
+
+    rule_version: Text
+    rules_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    model_version: Text
+    prompt_version: Text
+    elapsed_ms: Annotated[int, Field(strict=True, ge=0)]
 
 
 class ReviewDecision(InternalModel):
     passed: StrictBool
     issues: tuple[Issue, ...]
+    audit: AuditMetadata | None = Field(default=None, exclude_if=lambda value: value is None)
 
     @model_validator(mode="after")
     def consistent(self) -> "ReviewDecision":

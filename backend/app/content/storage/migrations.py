@@ -1,7 +1,7 @@
-"""内容数据库版本 1；升级在同一事务中完成，禁止接管其他数据库。"""
+"""内容数据库逐版迁移；所有 DDL 和版本标记在同一事务中提交。"""
 
 APPLICATION_ID = 1129270868
-VERSION = 1
+VERSION = 2
 STATEMENTS = (
     """CREATE TABLE content_jobs (
         job_id TEXT PRIMARY KEY, caller_id TEXT NOT NULL, task_id TEXT NOT NULL,
@@ -17,3 +17,18 @@ STATEMENTS = (
         input_json TEXT NOT NULL, output_json TEXT,
         started_at TEXT NOT NULL, finished_at TEXT)""",
 )
+
+# 保留 v1 定义供旧库升级，禁止通过重建表丢弃业务记录。
+MIGRATIONS = {
+    1: STATEMENTS,
+    2: (
+        "CREATE INDEX content_calls_by_job ON content_calls(job_id, started_at)",
+        """CREATE TRIGGER content_terminal_immutable
+            BEFORE UPDATE ON content_jobs
+            WHEN OLD.state IN ('succeeded','failed')
+            BEGIN SELECT RAISE(ABORT, 'terminal job is immutable'); END""",
+        """CREATE TRIGGER content_finished_call_immutable
+            BEFORE UPDATE ON content_calls WHEN OLD.finished_at IS NOT NULL
+            BEGIN SELECT RAISE(ABORT, 'finished call is immutable'); END""",
+    ),
+}
